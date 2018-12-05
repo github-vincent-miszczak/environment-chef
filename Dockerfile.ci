@@ -1,0 +1,23 @@
+FROM debian
+
+ARG CHEFDK_VERSION=3.4.38
+ARG DEBIAN_VERSION=9
+ENV CHEFDK_URL=https://packages.chef.io/files/stable/chefdk/${CHEFDK_VERSION}/debian/${DEBIAN_VERSION}/chefdk_${CHEFDK_VERSION}-1_amd64.deb
+ENV TERM xterm
+
+RUN apt-get update && apt-get install -qqy \
+  wget gosu libffi-dev zsh sudo procps git nano vim && \
+  apt-get clean autoclean && apt-get autoremove --yes && rm -rf /var/lib/{apt,dpkg,cache,log}/
+
+RUN cd /tmp && wget ${CHEFDK_URL} && apt install -qqy /tmp/chefdk_${CHEFDK_VERSION}-1_amd64.deb && \
+  apt-get clean autoclean && apt-get autoremove --yes && rm -rf /var/lib/{apt,dpkg,cache,log}/
+
+RUN chef gem install cookbook-release knife-acl
+
+ADD files/ /
+
+ADD entrypoint /entrypoint
+
+ENV PATH $PATH:/opt/chefdk/embedded/bin
+
+ENTRYPOINT [ "/entrypoint" ]

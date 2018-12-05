@@ -1,0 +1,9 @@
+#!/bin/zsh
+groupadd -r $USER -g ${USERID} && useradd -u ${USERID} --no-log-init -r -g $USER $USER > /dev/null 2>&1
+cd $CPWD
+
+if [ $# -eq 0 ]; then
+  exec gosu $USER /bin/zsh -i -l
+else 
+  exec gosu $USER /bin/zsh -c "${(j. .)${(q)@}}"
+fi
